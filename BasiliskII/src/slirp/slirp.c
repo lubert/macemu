@@ -1,7 +1,4 @@
 #include "slirp.h"
-#ifdef __MINGW32__
-#include <winerror.h>
-#endif
 
 /* host address */
 struct in_addr our_addr;
@@ -87,14 +84,25 @@ static int get_dns_addr(struct in_addr *pdns_addr)
 static int get_dns_addr(struct in_addr *pdns_addr)
 {
     char buff[512];
-    char buff2[257];
+    char buff2[256+1];
     FILE *f;
     int found = 0;
     struct in_addr tmp_addr;
     
     f = fopen("/etc/resolv.conf", "r");
-    if (!f)
+    if (!f) {
+#ifndef __BIND_NOSTATIC
+        if ((_res.options & RES_INIT) == 0)
+            res_init();
+        if (_res.nscount < 1)
+            return -1;
+        *pdns_addr = _res.nsaddr_list[0].sin_addr;
+        memcpy(pdns_addr, &_res.nsaddr_list[0].sin_addr, sizeof(struct in_addr));
+        return 0;
+#else
         return -1;
+#endif
+    }
 
     lprint("IP address of your DNS(s): ");
     while (fgets(buff, 512, f) != NULL) {
@@ -127,15 +135,12 @@ static int get_dns_addr(struct in_addr *pdns_addr)
 void slirp_cleanup(void)
 {
     WSACleanup();
-	unload_host_domains();
 }
 #endif
 
 int slirp_init(void)
 {
     //    debug_init("/tmp/slirp.log", DEBUG_DEFAULT);
-
-	load_host_domains();
     
 #ifdef _WIN32
     {
@@ -430,7 +435,7 @@ void slirp_select_poll(fd_set *readfds, fd_set *writefds, fd_set *xfds)
 			    /* Connected */
 			    so->so_state &= ~SS_ISFCONNECTING;
 			    
-			    ret = send(so->s, NULL, 0, 0);
+			    ret = send(so->s, &ret, 0, 0);
 			    if (ret < 0) {
 			      /* XXXXX Must fix, zero bytes is a NOP */
 			      if (errno == EAGAIN || errno == EWOULDBLOCK ||

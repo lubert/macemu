@@ -51,8 +51,6 @@
 #include <slirp.h>
 #include "ip_icmp.h"
 
-static struct ip *ip_reass(register struct ip *ip, register struct ipq *fp);
-
 int ip_defttl;
 struct ipstat ipstat;
 struct ipq ipq;
@@ -84,7 +82,7 @@ ip_input(m)
 	
 	DEBUG_CALL("ip_input");
 	DEBUG_ARG("m = %lx", (long)m);
-	DEBUG_ARG("m_len = %d", m->m_len);
+	DEBUG_ARG("m_len = %zu", m->m_len);
 
 	ipstat.ips_total++;
 	
@@ -253,7 +251,7 @@ ip_reass(register struct ip *ip, register struct ipq *fp)
 	register struct mbuf *m = dtom(ip);
 	register struct ipasfrag *q;
 	int hlen = ip->ip_hl << 2;
-	u_int16_t i, next;
+	int i, next;
 	
 	DEBUG_CALL("ip_reass");
 	DEBUG_ARG("ip = %lx", (long)ip);
@@ -375,7 +373,7 @@ insert:
 	 */
 	if (m->m_flags & M_EXT) {
 	  int delta;
-	  delta = (char *)q - m->m_dat;
+	  delta = (char *)ip - m->m_dat;
 	  q = (struct ipasfrag *)(m->m_ext + delta);
 	}
 

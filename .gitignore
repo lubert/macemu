@@ -37,3 +37,13 @@ project.xcworkspace/
 # JetBrains IDE settings
 #
 *.idea
+
+# UAE CPU build artifacts
+BasiliskII/src/uae_cpu/build68k
+BasiliskII/src/uae_cpu/cpudefs.cpp
+BasiliskII/src/uae_cpu/cpuemu.cpp
+BasiliskII/src/uae_cpu/cpustbl.cpp
+BasiliskII/src/uae_cpu/cputbl.h
+BasiliskII/src/uae_cpu/gencpu
+BasiliskII/src/uae_cpu/cpuemu_nf.cpp
+BasiliskII/src/uae_cpu/cpustbl_nf.cpp

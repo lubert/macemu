@@ -292,7 +292,10 @@ static void *vm_acquire_internal(size_t size, int options)
 	if ((addr = mmap((caddr_t)next_address, size, VM_PAGE_DEFAULT, the_map_flags, fd, 0)) == (void *)MAP_FAILED)
 		return VM_MAP_FAILED;
 #endif
-#if USE_JIT
+	//For virtual addressing (a.k.a memory banks), there is no need to enforce that 
+	//host memory must be under 4GiB. Bypass this sanity test of virtual adressing 
+	//for aarch64, x86_64 architecture.
+#if REAL_ADDRESSING || DIRECT_ADDRESSING
 	// Sanity checks for 64-bit platforms
 	if (sizeof(void *) == 8 && (options & VM_MAP_32BIT) && !((char *)addr <= (char *)0xffffffff))
 		return VM_MAP_FAILED;

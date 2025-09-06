@@ -1,111 +1,62 @@
-#### BasiliskII
-```
-macOS     x86_64 JIT / arm64 non-JIT
-Linux x86 x86_64 JIT / arm64 non-JIT
-MinGW x86        JIT
-```
-#### SheepShaver
-```
-macOS     x86_64 JIT / arm64 non-JIT
-Linux x86 x86_64 JIT / arm64 non-JIT
-MinGW x86        JIT
-```
-### How To Build
-These builds need to be installed SDL2.0.14+ framework/library.
+# Basilisk II and SheepShaver
 
-https://www.libsdl.org
-#### BasiliskII
-##### macOS
-preparation:
+This repository contains the **Basilisk II** and **SheepShaver** projects.
 
-Download gmp-6.2.1.tar.xz from https://gmplib.org.
-```
-$ cd ~/Downloads
-$ tar xf gmp-6.2.1.tar.xz
-$ cd gmp-6.2.1
-$ ./configure --disable-shared
-$ make
-$ make check
-$ sudo make install
-```
-Download mpfr-4.2.0.tar.xz from https://www.mpfr.org.
-```
-$ cd ~/Downloads
-$ tar xf mpfr-4.2.0.tar.xz
-$ cd mpfr-4.2.0
-$ ./configure --disable-shared
-$ make
-$ make check
-$ sudo make install
-```
-On an Intel Mac, the libraries should be cross-built.  
-Change the `configure` command for both GMP and MPFR as follows, and ignore the `make check` command:
-```
-$ CFLAGS="-arch arm64" CXXFLAGS="$CFLAGS" ./configure -host=aarch64-apple-darwin --disable-shared 
-```
-(from https://github.com/kanjitalk755/macemu/pull/96)
+Releases are made available by the https://emaculation.com/ community.
 
-about changing Deployment Target:  
-If you build with an older version of Xcode, you can change Deployment Target to the minimum it supports or 10.7, whichever is greater.
+Note: For a more up-to-date fork, check out https://github.com/kanjitalk755/macemu/.
 
-build:
-```
-$ cd macemu/BasiliskII/src/MacOSX
-$ xcodebuild build -project BasiliskII.xcodeproj -configuration Release
-```
-or same as Linux
+# What is Basilisk II?
 
-##### Linux
-preparation (arm64 only): Install GMP and MPFR.
-```
-$ cd macemu/BasiliskII/src/Unix
-$ ./autogen.sh
-$ make
-```
-##### MinGW32/MSYS2
-preparation:
-```
-$ pacman -S base-devel mingw-w64-i686-toolchain autoconf automake mingw-w64-i686-SDL2
-```
-note: MinGW32 dropped GTK2 package.
-See msys2/MINGW-packages#24490
+Basilisk II is an Open Source 68k Macintosh emulator. That is, it allows you to run 68k MacOS software on your computer, even if you are using a different operating system. However, you still need a copy of MacOS and a Macintosh ROM image to use Basilisk II. Basilisk II is distributed under the terms of the GNU General Public License (GPL).
 
-build (from a mingw32.exe prompt):
-```
-$ cd macemu/BasiliskII/src/Windows
-$ ../Unix/autogen.sh
-$ make
-```
-#### SheepShaver
-##### macOS
-about changing Deployment Target: see BasiliskII
-```
-$ cd macemu/SheepShaver/src/MacOSX
-$ xcodebuild build -project SheepShaver_Xcode8.xcodeproj -configuration Release
-```
-or same as Linux
+For more information, see the README file. If you are interested in learning how Basilisk II works internally, there is a Technical Manual available (knowledge about programming and computer architecture is required).
 
-##### Linux
-```
-$ cd macemu/SheepShaver/src/Unix
-$ ./autogen.sh
-$ make
-```
-For Raspberry Pi:
-https://github.com/vaccinemedia/macemu
+# Available ports
 
-##### MinGW32/MSYS2
-preparation: same as BasiliskII  
-  
-build (from a mingw32.exe prompt):
-```
-$ cd macemu/SheepShaver
-$ make links
-$ cd src/Windows
-$ ../Unix/autogen.sh
-$ make
-```
-### Recommended key bindings for gnome
-https://github.com/kanjitalk755/macemu/blob/master/SheepShaver/doc/Linux/gnome_keybindings.txt
+Basilisk II has been ported to the following systems:
+ * Unix with X11 (Linux i386/x86_64, Solaris 2.5, FreeBSD 3.x, IRIX 6.5)
+ * Mac OS X (PowerPC and Intel)
+ * Windows NT/2000/XP
+ * BeOS R4 (PowerPC and Intel)
+ * AmigaOS 3.x
+ 
+# Some features of Basilisk II
 
-(from https://github.com/kanjitalk755/macemu/issues/59)
+ * Emulates either a Mac Classic (which runs MacOS 0.x thru 7.5) or a Mac II series machine (which runs MacOS 7.x, 8.0 and 8.1), depending on the ROM being used
+ * Color video display
+ * CD quality sound output
+ * Floppy disk driver (only 1.44MB disks supported)
+ * Driver for HFS partitions and hardfiles
+ * CD-ROM driver with basic audio functions
+ * Easy file exchange with the host OS via a "Host Directory Tree" icon on the Mac desktop
+ * Ethernet driver
+ * Serial drivers
+ * SCSI Manager (old-style) emulation
+ * Emulates extended ADB keyboard and 3-button mouse
+ * Uses UAE 68k emulation or (under AmigaOS and NetBSD/m68k) real 68k processor
+
+# What is SheepShaver?
+
+SheepShaver is a Mac OS run-time environment that allows you to run classic PowerPC Mac OS applications on a different operating system, such as Mac OS X, Windows, Linux or BeOS. If you are using a PowerPC-based system, applications will run at native speed (i.e. with no emulation involved). There is also a built-in PowerPC emulator for non-PowerPC systems.
+
+SheepShaver is distributed under the terms of the GNU General Public License (GPL). However, you still need a copy of MacOS and a PowerMac ROM image to use SheepShaver. If you're planning to run SheepShaver on a PowerMac, you probably already have these two items.
+
+# Supported systems
+
+SheepShaver runs with varying degree of functionality on the following systems:
+
+ * Unix with X11 (Linux i386/x86_64/ppc, NetBSD 2.x, FreeBSD 3.x)
+ * Mac OS X (PowerPC and Intel)
+ * Windows NT/2000/XP
+ * BeOS R4/R5 (PowerPC)
+
+# Some of SheepShaver's features
+ * Runs MacOS 7.5.2 thru 9.0.4. MacOS X as a guest is not supported.
+ * Color video display
+ * CD quality sound output
+ * Access to floppy disks, CD-ROMs and HFS(+) partitions on hard disks
+ * Easy file exchange with the host OS via a "Host Directory Tree" icon on the Mac desktop
+ * Internet and LAN networking via Ethernet
+ * Serial drivers
+SCSI Manager (old-style) emulation

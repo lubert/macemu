@@ -22,16 +22,8 @@ typedef char *caddr_t;
 typedef int socklen_t;
 typedef unsigned long ioctlsockopt_t;
 
-#ifdef __MINGW32__
-#if _WIN32_WINNT < 0x501
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x501
-#endif
-#endif
-//# include <windows.h>
+# include <windows.h>
 # include <winsock2.h>
-# include <WS2tcpip.h>
-
 # include <sys/timeb.h>
 # include <iphlpapi.h>
 
@@ -49,14 +41,6 @@ typedef unsigned long ioctlsockopt_t;
 # define init_udp slirp_init_udp
 # define final_udp slirp_final_udp
 #else
-# define WSAGetLastError() (int)(errno)
-# define WSASetLastError(e) (void)(errno = (e))
-# define WSAEWOULDBLOCK EWOULDBLOCK
-# define WSAEINPROGRESS EINPROGRESS
-# define WSAENOTCONN ENOTCONN
-# define WSAEHOSTUNREACH EHOSTUNREACH
-# define WSAENETUNREACH ENETUNREACH
-# define WSAECONNREFUSED ECONNREFUSED
 typedef int ioctlsockopt_t;
 # define ioctlsocket ioctl
 # define closesocket(s) close(s)
@@ -71,9 +55,7 @@ typedef int ioctlsockopt_t;
 # include <stdint.h>
 #endif
 
-#ifndef _WIN32
 #include <sys/time.h>
-#endif
 
 #ifdef NEED_TYPEDEFS
 typedef char int8_t;
@@ -143,8 +125,6 @@ typedef u_int32_t uint32;
 
 #ifndef _WIN32
 #include <sys/uio.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #endif
 
 #ifndef _P
@@ -155,6 +135,10 @@ typedef u_int32_t uint32;
 #endif
 #endif
 
+#ifndef _WIN32
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#endif
 
 #ifdef GETTIMEOFDAY_ONE_ARG
 #define gettimeofday(x, y) gettimeofday(x)
@@ -176,9 +160,6 @@ int inet_aton _P((const char *cp, struct in_addr *ia));
 #endif
 
 #include <fcntl.h>
-#ifdef _WIN32
-#include <io.h>
-#endif
 #ifndef NO_UNIX_SOCKETS
 #include <sys/un.h>
 #endif
@@ -223,6 +204,15 @@ int inet_aton _P((const char *cp, struct in_addr *ia));
 #define insque slirp_insque
 #define remque slirp_remque
 
+/* Avoid conflicting with system headers */
+#define tcphdr slirp_tcphdr
+#define mbstat slirp_mbstat
+#define sbuf slirp_sbuf
+
+#ifdef HAVE_RESOLV_H
+#include <resolv.h>
+#endif
+
 #ifdef HAVE_SYS_STROPTS_H
 #include <sys/stropts.h>
 #endif
@@ -231,13 +221,8 @@ int inet_aton _P((const char *cp, struct in_addr *ia));
 
 #if defined __GNUC__
 #define PACKED__ __attribute__ ((packed))
-#elif defined _MSC_VER 
-#define PRAGMA_PACK_SUPPORTED 1
-#define PACK_RESET
-#define PACKED__
 #elif defined __sgi
 #define PRAGMA_PACK_SUPPORTED 1
-#define PACK_RESET 0
 #define PACKED__
 #else
 #error "Packed attribute or pragma shall be supported"
@@ -308,14 +293,6 @@ void lprint _P((const char *, ...));
 
 extern int do_echo;
 
-#if SIZEOF_CHAR_P == 4
-# define insque_32 insque
-# define remque_32 remque
-#else
- extern inline void insque_32(void *, void *);
- extern inline void remque_32(void *);
-#endif
-
 #ifndef _WIN32
 #include <netdb.h>
 #endif
@@ -332,6 +309,8 @@ void if_output _P((struct socket *, struct mbuf *));
 /* ip_input.c */
 void ip_init _P((void));
 void ip_input _P((struct mbuf *));
+static struct ip *
+ip_reass(register struct ip *ip, register struct ipq *);
 void ip_freef _P((struct ipq *));
 void ip_enq _P((register struct ipasfrag *, register struct ipasfrag *));
 void ip_deq _P((register struct ipasfrag *));
@@ -367,9 +346,6 @@ u_int8_t tcp_tos _P((struct socket *));
 int tcp_emu _P((struct socket *, struct mbuf *));
 int tcp_ctl _P((struct socket *));
 struct tcpcb *tcp_drop(struct tcpcb *tp, int err);
-
-void load_host_domains();
-void unload_host_domains();
 
 #ifdef USE_PPP
 #define MIN_MRU MINMRU
